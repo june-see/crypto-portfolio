@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f1df" />
+  <title>LMF's Crypto Portfolio</title>
+  <style>
+    :root {
+      --cream: #f7f1df;
+      --paper: rgba(255,255,255,.64);
+      --ink: #171717;
+      --muted: #78736a;
+      --line: rgba(23,23,23,.09);
+      --green: #177245;
+      --red: #b8453d;
+      --gold: #d7a52d;
+      --blue: #6c91a8;
+      --shadow: 0 10px 35px rgba(48,39,21,.06);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--cream); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 86% 5%, rgba(255,255,255,.75), transparent 28%),
+        linear-gradient(180deg, #faf4e4 0%, var(--cream) 48%, #f4ecd8 100%);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; }
+
+    .app {
+      width: min(100%, 520px);
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: max(24px, env(safe-area-inset-top)) 18px 0;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .live {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 99px;
+      background: #2f9d62;
+      box-shadow: 0 0 0 4px rgba(47,157,98,.12);
+    }
+
+    .hero { margin-bottom: 22px; }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .portfolio-value {
+      margin: 0;
+      font-size: clamp(42px, 12vw, 64px);
+      line-height: .98;
+      letter-spacing: -.055em;
+      font-weight: 750;
+    }
+    .secondary-value {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .pnl-line {
+      margin-top: 17px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pnl-amount, .pnl-percent {
+      font-variant-numeric: tabular-nums;
+      font-weight: 750;
+    }
+    .pnl-amount { font-size: 20px; }
+    .pnl-percent {
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: rgba(23,114,69,.09);
+    }
+    .positive { color: var(--green); }
+    .negative { color: var(--red); }
+    .negative.pnl-percent { background: rgba(184,69,61,.09); }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0 14px;
+    }
+    .segmented {
+      display: flex;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(52,44,30,.07);
+    }
+    .segmented button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .segmented button.active {
+      color: var(--ink);
+      background: rgba(255,255,255,.86);
+      box-shadow: 0 1px 5px rgba(0,0,0,.05);
+    }
+    .updated { color: var(--muted); font-size: 10px; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .asset-card {
+      background: var(--paper);
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 23px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .asset-card { padding: 18px; }
+    .asset-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .asset-id { display: flex; align-items: center; gap: 10px; }
+    .coin {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(23,23,23,.06);
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: -.02em;
+    }
+    .asset-name { font-weight: 750; font-size: 15px; }
+    .holdings { margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .asset-price { text-align: right; }
+    .asset-price strong { display: block; font-size: 16px; }
+    .asset-price span { color: var(--muted); font-size: 10px; }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px 10px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+    .metric label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+    .metric strong { font-size: 13px; font-variant-numeric: tabular-nums; }
+
+
+
+    .tree-section {
+      position: relative;
+      height: 330px;
+      margin: 26px -18px 0;
+      overflow: hidden;
+    }
+    .tree-label {
+      position: absolute;
+      z-index: 5;
+      top: 10px;
+      left: 20px;
+    }
+    .tree-label p { margin: 0 0 3px; color: var(--muted); font-size: 10px; }
+    .tree-label strong { font-size: 13px; }
+    #treeScene {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .simulator {
+      margin: 26px 0 -6px;
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.58);
+      border: 1px solid rgba(255,255,255,.82);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .simulator-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .simulator-head strong { font-size: 13px; }
+    .simulator-state {
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .simulator input[type="range"] {
+      width: 100%;
+      margin: 4px 0 12px;
+      accent-color: var(--green);
+    }
+    .simulator-range-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: -8px;
+      color: var(--muted);
+      font-size: 9px;
+    }
+    .simulator-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .simulator-presets button,
+    .simulator-live {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(23,23,23,.06);
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .simulator-presets button.active {
+      background: var(--ink);
+      color: white;
+    }
+    .simulator-live {
+      margin-top: 12px;
+      width: 100%;
+      background: rgba(23,114,69,.10);
+      color: var(--green);
+    }
+
+    .loading-toast, .error-toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(calc(100% - 36px), 460px);
+      padding: 10px 13px;
+      border-radius: 14px;
+      font-size: 11px;
+      z-index: 30;
+      box-shadow: 0 8px 26px rgba(0,0,0,.12);
+    }
+    .loading-toast { background: #1d1d1d; color: white; }
+    .error-toast { background: #fff8f4; color: var(--red); border: 1px solid rgba(184,69,61,.16); }
+    .hidden { display: none !important; }
+
+    .rain-drop { animation: rainFall 1s linear infinite; }
+    @keyframes rainFall {
+      from { transform: translateY(-18px); opacity: 0; }
+      15% { opacity: .75; }
+      to { transform: translateY(110px); opacity: 0; }
+    }
+    .cloud { animation: cloudDrift 7s ease-in-out infinite alternate; transform-origin: center; }
+    @keyframes cloudDrift { from { transform: translateX(-7px); } to { transform: translateX(8px); } }
+    .sun { animation: sunFloat 4.8s ease-in-out infinite alternate; transform-origin: center; }
+    @keyframes sunFloat { from { transform: translateY(0) rotate(-2deg); } to { transform: translateY(4px) rotate(3deg); } }
+    .rainbow { animation: rainbowBreathe 4s ease-in-out infinite alternate; }
+    @keyframes rainbowBreathe { from { opacity: .34; } to { opacity: .62; } }
+    .flower { transform-box: fill-box; transform-origin: center; animation: bloom .9s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes bloom { from { transform: scale(.1); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    @media (min-width: 680px) {
+      .cards { grid-template-columns: 1fr 1fr; }
+      .asset-card { padding: 17px; }
+      .metric-grid { grid-template-columns: 1fr; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand">LMF's Crypto Portfolio</div>
+      <div class="live"><span class="dot"></span><span>LIVE</span></div>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">Total portfolio value</p>
+      <h1 class="portfolio-value" id="portfolioValue">$0.00</h1>
+      <div class="secondary-value" id="secondaryValue">RM 0.00</div>
+      <div class="pnl-line">
+        <span class="pnl-amount" id="pnlAmount">$0.00</span>
+        <span class="pnl-percent" id="pnlPercent">0.00%</span>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="segmented" aria-label="Currency">
+        <button class="active" data-currency="usd">USD</button>
+        <button data-currency="myr">MYR</button>
+      </div>
+      <div class="updated" id="updatedText">Waiting for price…</div>
+    </div>
+
+    <section class="cards">
+      <article class="asset-card" data-asset="ethereum">
+        <div class="asset-top">
+          <div class="asset-id">
+            <div class="coin">ETH</div>
+            <div>
+              <div class="asset-name">Ethereum</div>
+              <div class="holdings">2.100000 ETH</div>
+            </div>
+          </div>
+          <div class="asset-price"><strong id="ethPrice">-</strong><span>current price</span></div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric"><label>Current value</label><strong id="ethValue">-</strong></div>
+          <div class="metric"><label>Average entry</label><strong id="ethEntry">-</strong></div>
+          <div class="metric"><label>Invested</label><strong id="ethInvested">-</strong></div>
+          <div class="metric"><label>P&L</label><strong id="ethPnl">-</strong></div>
+        </div>
+      </article>
+
+      <article class="asset-card" data-asset="bitcoin">
+        <div class="asset-top">
+          <div class="asset-id">
+            <div class="coin">BTC</div>
+            <div>
+              <div class="asset-name">Bitcoin</div>
+              <div class="holdings">0.015527 BTC</div>
+            </div>
+          </div>
+          <div class="asset-price"><strong id="btcPrice">-</strong><span>current price</span></div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric"><label>Current value</label><strong id="btcValue">-</strong></div>
+          <div class="metric"><label>Average entry</label><strong id="btcEntry">-</strong></div>
+          <div class="metric"><label>Invested</label><strong id="btcInvested">-</strong></div>
+          <div class="metric"><label>P&L</label><strong id="btcPnl">-</strong></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="simulator hidden" id="gardenSimulator" aria-label="Portfolio garden simulator">
+      <div class="simulator-head">
+        <strong>Garden simulator</strong>
+        <span class="simulator-state" id="simulatorState">LIVE</span>
+      </div>
+      <input id="pnlSlider" type="range" min="-100" max="500" step="1" value="0" aria-label="Simulated P&L percentage" />
+      <div class="simulator-range-labels"><span>-100%</span><span>+500%</span></div>
+      <div class="simulator-presets">
+        <button data-sim-pnl="-50">-50%</button>
+        <button data-sim-pnl="-10">-10%</button>
+        <button data-sim-pnl="0">0%</button>
+        <button data-sim-pnl="10">+10%</button>
+        <button data-sim-pnl="20">+20%</button>
+        <button data-sim-pnl="50">+50%</button>
+        <button data-sim-pnl="70">+70%</button>
+        <button data-sim-pnl="100">+100%</button>
+        <button data-sim-pnl="200">+200%</button>
+        <button data-sim-pnl="300">+300%</button>
+      </div>
+      <button class="simulator-live" id="returnLive">Return garden to live P&amp;L</button>
+    </section>
+
+    <section class="tree-section">
+      <div class="tree-label">
+        <p>Portfolio garden</p>
+        <strong id="treeStatus">Growing from your P&L</strong>
+      </div>
+      <svg id="treeScene" viewBox="0 0 520 390" preserveAspectRatio="xMidYMid slice" aria-label="Animated portfolio tree"></svg>
+    </section>
+  </main>
+
+  <div class="loading-toast" id="loadingToast">Fetching live BTC & ETH prices…</div>
+  <div class="error-toast hidden" id="errorToast">Could not reach CoinGecko. Your last successful price will stay on screen.</div>
+
+<script>
+(() => {
+  const API = 'https://api.coingecko.com/api/v3';
+  const PORTFOLIO = {
+    ethereum: { symbol: 'ETH', qty: 2.1, costUsd: 4048.5, avgUsd: 4048.5 / 2.1 },
+    bitcoin: { symbol: 'BTC', qty: 0.015527, costUsd: 998.665586, avgUsd: 64318 }
+  };
+  const TOTAL_COST_USD = PORTFOLIO.ethereum.costUsd + PORTFOLIO.bitcoin.costUsd;
+
+  let currency = 'usd';
+  let prices = null;
+  let pnlPct = 0;
+  let simulatedPnl = null;
+  let raf = null;
+
+  const simulatorEnabled = new URLSearchParams(window.location.search).get('sim') === '1';
+  const $ = (id) => document.getElementById(id);
+  const activeGardenPnl = () => simulatedPnl === null ? pnlPct : simulatedPnl;
+  const money = (value, cur = currency, max = 2) => {
+    if (!Number.isFinite(value)) return '-';
+    if (cur === 'myr') return 'RM ' + value.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: max });
+    return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: max });
+  };
+  const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+
+  function setSign(el, value, pill = false) {
+    el.classList.remove('positive', 'negative');
+    if (value >= 0) el.classList.add('positive');
+    else el.classList.add('negative');
+    if (pill) el.classList.add('pnl-percent');
+  }
+
+  async function fetchPrices() {
+    try {
+      const url = `${API}/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,myr&include_last_updated_at=true`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Price request failed');
+      prices = await res.json();
+      localStorage.setItem('lmf-last-prices', JSON.stringify(prices));
+      $('errorToast').classList.add('hidden');
+      updateDashboard();
+      $('loadingToast').classList.add('hidden');
+    } catch (err) {
+      const cached = localStorage.getItem('lmf-last-prices');
+      if (cached && !prices) {
+        try { prices = JSON.parse(cached); updateDashboard(); } catch (_) {}
+      }
+      $('loadingToast').classList.add('hidden');
+      $('errorToast').classList.remove('hidden');
+      setTimeout(() => $('errorToast').classList.add('hidden'), 5000);
+    }
+  }
+
+  function updateDashboard() {
+    if (!prices?.ethereum?.usd || !prices?.bitcoin?.usd) return;
+
+    const usdValue = PORTFOLIO.ethereum.qty * prices.ethereum.usd + PORTFOLIO.bitcoin.qty * prices.bitcoin.usd;
+    const myrValue = PORTFOLIO.ethereum.qty * prices.ethereum.myr + PORTFOLIO.bitcoin.qty * prices.bitcoin.myr;
+    const fx = myrValue / usdValue;
+    const displayValue = currency === 'usd' ? usdValue : myrValue;
+    const displayCost = currency === 'usd' ? TOTAL_COST_USD : TOTAL_COST_USD * fx;
+    const displayPnl = displayValue - displayCost;
+    pnlPct = ((usdValue - TOTAL_COST_USD) / TOTAL_COST_USD) * 100;
+
+    $('portfolioValue').textContent = money(displayValue, currency);
+    $('secondaryValue').textContent = currency === 'usd' ? money(myrValue, 'myr') : money(usdValue, 'usd');
+    $('pnlAmount').textContent = `${displayPnl >= 0 ? '+' : '-'}${money(Math.abs(displayPnl), currency)}`;
+    $('pnlPercent').textContent = pct(pnlPct);
+    setSign($('pnlAmount'), displayPnl);
+    setSign($('pnlPercent'), pnlPct, true);
+
+    renderAsset('ethereum', fx);
+    renderAsset('bitcoin', fx);
+
+    const updated = Math.max(prices.ethereum.last_updated_at || 0, prices.bitcoin.last_updated_at || 0);
+    $('updatedText').textContent = updated ? `Updated ${new Date(updated * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}` : 'Live prices';
+
+    storePortfolioSnapshot(usdValue, myrValue);
+    if (simulatorEnabled && simulatedPnl === null) syncSimulatorToLive();
+    drawTree();
+  }
+
+  function renderAsset(id, fx) {
+    const p = PORTFOLIO[id];
+    const currentPrice = prices[id][currency];
+    const currentValue = currentPrice * p.qty;
+    const cost = currency === 'usd' ? p.costUsd : p.costUsd * fx;
+    const entry = currency === 'usd' ? p.avgUsd : p.avgUsd * fx;
+    const assetPnl = currentValue - cost;
+    const assetPct = (assetPnl / cost) * 100;
+    const prefix = id === 'ethereum' ? 'eth' : 'btc';
+
+    $(prefix + 'Price').textContent = money(currentPrice, currency);
+    $(prefix + 'Value').textContent = money(currentValue, currency);
+    $(prefix + 'Entry').textContent = money(entry, currency);
+    $(prefix + 'Invested').textContent = money(cost, currency);
+    $(prefix + 'Pnl').textContent = `${assetPnl >= 0 ? '+' : '-'}${money(Math.abs(assetPnl), currency)} · ${pct(assetPct)}`;
+    setSign($(prefix + 'Pnl'), assetPnl);
+  }
+
+  function storePortfolioSnapshot(usd, myr) {
+    const key = 'lmf-portfolio-history';
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    const now = Date.now();
+    const last = list[list.length - 1];
+    if (!last || now - last.t > 15 * 60 * 1000) {
+      list.push({ t: now, usd, myr });
+      const cutoff = now - 365 * 24 * 60 * 60 * 1000;
+      localStorage.setItem(key, JSON.stringify(list.filter(x => x.t >= cutoff)));
+    }
+  }
+
+  function treeState(p) {
+    if (p < 0) return { stage: 0, growth: .34, rain: true, sun: false, rainbow: false, foliage: .14, flowers: 0 };
+    const stage = Math.min(10, Math.floor(p / 10));
+    return {
+      stage,
+      growth: Math.min(1, .42 + stage * .08),
+      rain: false,
+      sun: p >= 20,
+      rainbow: p >= 70,
+      foliage: Math.min(1, .22 + stage * .11),
+      flowers: Math.floor(p / 100)
+    };
+  }
+
+  function buildTreeBranches(stage) {
+    const depth = stage <= 0 ? 1 : stage <= 1 ? 2 : stage <= 3 ? 3 : stage <= 6 ? 4 : 5;
+    const branches = [];
+    const tips = [];
+    function grow(x, y, len, angle, d, seed) {
+      const x2 = x + Math.cos(angle) * len;
+      const y2 = y + Math.sin(angle) * len;
+      branches.push({ x1:x, y1:y, x2, y2, d, seed });
+      if (d <= 0) { tips.push({x:x2, y:y2, seed}); return; }
+      const spread = .43 + (seed % 5) * .012;
+      grow(x2, y2, len * .72, angle - spread, d - 1, seed * 2 + 1);
+      grow(x2, y2, len * .69, angle + spread * .93, d - 1, seed * 2 + 2);
+      if (d >= 2 && seed % 2 === 0) grow(x2, y2, len * .58, angle + .06, d - 1, seed * 3 + 1);
+    }
+    grow(260, 298, 96, -Math.PI/2, depth, 2);
+    return { branches, tips };
+  }
+
+  function drawTree() {
+    if (raf) cancelAnimationFrame(raf);
+    const svg = $('treeScene');
+    const gardenPnl = activeGardenPnl();
+    const state = treeState(gardenPnl);
+    const { branches, tips } = buildTreeBranches(state.stage);
+    const ns = 'http://www.w3.org/2000/svg';
+
+    if (gardenPnl < 0) $('treeStatus').textContent = `${pct(gardenPnl)} · weathering the rain`;
+    else if (gardenPnl >= 100) $('treeStatus').textContent = `${pct(gardenPnl)} · mature tree · ${state.flowers} flower${state.flowers === 1 ? '' : 's'}`;
+    else $('treeStatus').textContent = `${pct(gardenPnl)} growth`;
+
+    function frame(time) {
+      svg.innerHTML = '';
+
+      const ground = document.createElementNS(ns, 'path');
+      ground.setAttribute('d', 'M0 286 C110 272 188 296 260 282 C344 266 422 295 520 280 L520 390 L0 390 Z');
+      ground.setAttribute('fill', 'rgba(93,122,67,.07)');
+      svg.appendChild(ground);
+
+      if (state.rain) {
+        const cloud = document.createElementNS(ns, 'g');
+        cloud.setAttribute('class', 'cloud');
+        cloud.innerHTML = `<ellipse cx="262" cy="78" rx="58" ry="22" fill="#9b9d9d" opacity=".55"/><circle cx="230" cy="68" r="25" fill="#a8aaaa"/><circle cx="268" cy="58" r="32" fill="#929696"/><circle cx="302" cy="70" r="25" fill="#a4a6a6"/>`;
+        svg.appendChild(cloud);
+        const severity = Math.min(1, Math.abs(gardenPnl) / 60);
+        const count = 10 + Math.round(severity * 14);
+        for (let i=0; i<count; i++) {
+          const r = document.createElementNS(ns, 'line');
+          const x = 205 + ((i * 31) % 120);
+          const y = 92 + ((i * 17) % 50);
+          r.setAttribute('x1', x); r.setAttribute('x2', x - 5);
+          r.setAttribute('y1', y); r.setAttribute('y2', y + 13);
+          r.setAttribute('stroke', '#7391a4');
+          r.setAttribute('stroke-width', '2');
+          r.setAttribute('stroke-linecap', 'round');
+          r.setAttribute('opacity', String(.4 + severity * .3));
+          r.setAttribute('class', 'rain-drop');
+          r.style.animationDelay = `${-(i % 8) * .13}s`;
+          svg.appendChild(r);
+        }
+      }
+
+      if (state.sun) {
+        const sun = document.createElementNS(ns, 'g');
+        sun.setAttribute('class', 'sun');
+        sun.innerHTML = `<circle cx="398" cy="92" r="29" fill="#e3b74b" opacity=".72"/><circle cx="398" cy="92" r="40" fill="#e3b74b" opacity=".08"/>`;
+        svg.appendChild(sun);
+      }
+
+      if (state.rainbow) {
+        const rainbow = document.createElementNS(ns, 'g');
+        rainbow.setAttribute('class', 'rainbow');
+        const arcs = [
+          ['#c98779', 164], ['#d8a45e', 156], ['#d9c46d', 148], ['#84a77d', 140], ['#7ea0ae', 132]
+        ];
+        arcs.forEach(([c, r]) => {
+          const a = document.createElementNS(ns, 'path');
+          a.setAttribute('d', `M ${260-r} 283 A ${r} ${r} 0 0 1 ${260+r} 283`);
+          a.setAttribute('fill', 'none'); a.setAttribute('stroke', c); a.setAttribute('stroke-width', '6'); a.setAttribute('opacity', '.34');
+          rainbow.appendChild(a);
+        });
+        svg.appendChild(rainbow);
+      }
+
+      const tree = document.createElementNS(ns, 'g');
+      const growth = Math.min(1, state.growth);
+      const baseY = 298;
+      const windBase = Math.sin(time / 1150) * (state.rain ? 4.8 : 2.4);
+      const transformedTips = [];
+
+      branches.forEach((b, idx) => {
+        const depthFactor = 1 - Math.min(1, b.d / 6);
+        const sway = windBase * (.25 + depthFactor) + Math.sin(time / 840 + b.seed * .7) * 1.3 * depthFactor;
+        const x1 = 260 + (b.x1 - 260) * growth;
+        const y1 = baseY + (b.y1 - baseY) * growth;
+        const x2 = 260 + (b.x2 - 260) * growth + sway;
+        const y2 = baseY + (b.y2 - baseY) * growth;
+        const line = document.createElementNS(ns, 'line');
+        line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+        line.setAttribute('stroke', state.rain ? '#6e685e' : '#63513d');
+        line.setAttribute('stroke-width', String(Math.max(1.15, 5.2 - b.d * .65)));
+        line.setAttribute('stroke-linecap', 'round');
+        line.setAttribute('opacity', state.rain ? '.76' : '.9');
+        tree.appendChild(line);
+        if (b.d === 0) transformedTips.push({x:x2, y:y2, seed:b.seed});
+      });
+
+      if (state.stage > 1 || state.rain) {
+        transformedTips.forEach((t, i) => {
+          if ((i % Math.max(1, Math.round(3 - state.foliage * 2))) !== 0 && !state.rain) return;
+          const leaf = document.createElementNS(ns, 'ellipse');
+          leaf.setAttribute('cx', t.x + Math.sin(time/1000+i) * 1.4);
+          leaf.setAttribute('cy', t.y);
+          leaf.setAttribute('rx', state.rain ? 5 : 6.5 + state.foliage * 3.4);
+          leaf.setAttribute('ry', state.rain ? 8 : 9.5 + state.foliage * 3.8);
+          leaf.setAttribute('transform', `rotate(${(i*37)%80 - 40} ${t.x} ${t.y})`);
+          leaf.setAttribute('fill', state.rain ? '#7e8b67' : (i % 3 === 0 ? '#6f915d' : '#557c4c'));
+          leaf.setAttribute('opacity', state.rain ? '.6' : String(.62 + state.foliage * .22));
+          tree.appendChild(leaf);
+        });
+      }
+
+      const flowerCount = Math.min(state.flowers, transformedTips.length);
+      for (let i=0; i<flowerCount; i++) {
+        const index = (i * 7 + 3) % transformedTips.length;
+        const t = transformedTips[index];
+        if (!t) continue;
+        const g = document.createElementNS(ns, 'g');
+        g.setAttribute('class', 'flower');
+        g.style.animationDelay = `${i * .12}s`;
+        g.innerHTML = `
+          <circle cx="${t.x-4}" cy="${t.y}" r="4" fill="#d99198" opacity=".9"/>
+          <circle cx="${t.x+4}" cy="${t.y}" r="4" fill="#d99198" opacity=".9"/>
+          <circle cx="${t.x}" cy="${t.y-4}" r="4" fill="#e8acb0" opacity=".95"/>
+          <circle cx="${t.x}" cy="${t.y+4}" r="4" fill="#e8acb0" opacity=".95"/>
+          <circle cx="${t.x}" cy="${t.y}" r="2.6" fill="#d5a735"/>`;
+        tree.appendChild(g);
+      }
+
+      svg.appendChild(tree);
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+  }
+
+  function clampSimulatorValue(value) {
+    return Math.max(-100, Math.min(500, Number(value) || 0));
+  }
+
+  function updateSimulatorUI() {
+    if (!simulatorEnabled) return;
+    const state = $('simulatorState');
+    const slider = $('pnlSlider');
+    document.querySelectorAll('[data-sim-pnl]').forEach(btn => {
+      btn.classList.toggle('active', simulatedPnl !== null && Number(btn.dataset.simPnl) === simulatedPnl);
+    });
+
+    if (simulatedPnl === null) {
+      state.textContent = 'LIVE';
+      state.classList.remove('negative');
+      state.classList.add('positive');
+      slider.value = String(clampSimulatorValue(pnlPct));
+    } else {
+      state.textContent = `SIMULATING ${pct(simulatedPnl)}`;
+      state.classList.toggle('negative', simulatedPnl < 0);
+      state.classList.toggle('positive', simulatedPnl >= 0);
+      slider.value = String(clampSimulatorValue(simulatedPnl));
+    }
+  }
+
+  function syncSimulatorToLive() {
+    if (!simulatorEnabled || simulatedPnl !== null) return;
+    $('pnlSlider').value = String(clampSimulatorValue(pnlPct));
+    updateSimulatorUI();
+  }
+
+  function simulateGarden(value) {
+    simulatedPnl = clampSimulatorValue(value);
+    updateSimulatorUI();
+    drawTree();
+  }
+
+  function returnGardenToLive() {
+    simulatedPnl = null;
+    updateSimulatorUI();
+    drawTree();
+  }
+
+  if (simulatorEnabled) {
+    $('gardenSimulator').classList.remove('hidden');
+    $('pnlSlider').addEventListener('input', event => simulateGarden(event.target.value));
+    document.querySelectorAll('[data-sim-pnl]').forEach(btn => {
+      btn.addEventListener('click', () => simulateGarden(btn.dataset.simPnl));
+    });
+    $('returnLive').addEventListener('click', returnGardenToLive);
+    updateSimulatorUI();
+  }
+
+  document.querySelectorAll('[data-currency]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currency = btn.dataset.currency;
+      document.querySelectorAll('[data-currency]').forEach(b => b.classList.toggle('active', b === btn));
+      updateDashboard();
+        });
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) fetchPrices();
+  });
+
+  drawTree();
+  fetchPrices();
+  setInterval(() => { if (!document.hidden) fetchPrices(); }, 60 * 1000);
+})();
+</script>
+</body>
+</html>
