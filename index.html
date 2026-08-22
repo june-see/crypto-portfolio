@@ -225,44 +225,79 @@
       backdrop-filter: blur(12px);
       overflow: hidden;
     }
-    .tp-table {
+    .tp-ledger {
       width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
       font-variant-numeric: tabular-nums;
     }
-    .tp-table th {
-      padding: 13px 5px 11px;
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 750;
-      line-height: 1.25;
-      text-align: left;
-      vertical-align: bottom;
-      border-bottom: 1px solid var(--line);
+    .tp-ledger-row {
+      padding: 18px 2px 19px;
     }
-    .tp-table td {
-      padding: 16px 5px;
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 1.3;
-      vertical-align: middle;
-      overflow-wrap: anywhere;
-    }
-    .tp-table tbody tr + tr td {
+    .tp-ledger-row + .tp-ledger-row {
       border-top: 1px solid var(--line);
     }
-    .tp-table th:nth-child(1), .tp-table td:nth-child(1) { width: 24%; }
-    .tp-table th:nth-child(2), .tp-table td:nth-child(2) { width: 15%; }
-    .tp-table th:nth-child(3), .tp-table td:nth-child(3) { width: 19%; }
-    .tp-table th:nth-child(4), .tp-table td:nth-child(4) { width: 18%; }
-    .tp-table th:nth-child(5), .tp-table td:nth-child(5) { width: 24%; text-align: right; }
-    .tp-profit { color: var(--green); font-weight: 800; }
-    .tp-date { font-weight: 750; }
+    .tp-row-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .tp-date {
+      font-size: 19px;
+      line-height: 1.2;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .tp-profit-wrap {
+      text-align: right;
+      flex: 0 0 auto;
+    }
+    .tp-profit {
+      display: block;
+      color: var(--green);
+      font-size: 21px;
+      line-height: 1.15;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .tp-profit-label {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+    .tp-row-details {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      padding-top: 16px;
+    }
+    .tp-detail label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .tp-detail strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.25;
+      font-weight: 800;
+      white-space: nowrap;
+    }
     @media (max-width: 390px) {
-      .tp-card { padding-left: 11px; padding-right: 11px; }
-      .tp-table th { font-size: 13px; padding-left: 2px; padding-right: 2px; }
-      .tp-table td { font-size: 15px; padding-left: 2px; padding-right: 2px; }
+      .tp-card { padding-left: 14px; padding-right: 14px; }
+      .tp-row-top { gap: 10px; }
+      .tp-date { font-size: 17px; }
+      .tp-profit { font-size: 19px; }
+      .tp-profit-label, .tp-detail label { font-size: 12px; }
+      .tp-row-details { gap: 8px; }
+      .tp-detail strong { font-size: 15px; }
     }
 
     .tree-section {
@@ -464,18 +499,7 @@
         <h2 data-i18n="tpRecord">TP record</h2>
       </div>
       <article class="tp-card">
-        <table class="tp-table">
-          <thead>
-            <tr>
-              <th scope="col" data-i18n="date">Date</th>
-              <th scope="col" data-i18n="sold">Sold</th>
-              <th scope="col" data-i18n="tpPrice">TP price</th>
-              <th scope="col" data-i18n="proceeds">Proceeds</th>
-              <th scope="col" data-i18n="realisedProfit">Realised profit</th>
-            </tr>
-          </thead>
-          <tbody id="tpRows"></tbody>
-        </table>
+        <div class="tp-ledger" id="tpRows"></div>
       </article>
     </section>
 
@@ -669,13 +693,29 @@
         ? date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
         : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       return `
-        <tr>
-          <td class="tp-date">${dateText}</td>
-          <td>${record.qty} ${record.asset}</td>
-          <td>${money(record.priceUsd * multiplier, currency)}</td>
-          <td>${money(proceedsUsd * multiplier, currency)}</td>
-          <td class="tp-profit">+${money(realised, currency)}</td>
-        </tr>`;
+        <div class="tp-ledger-row">
+          <div class="tp-row-top">
+            <time class="tp-date" datetime="${record.date}">${dateText}</time>
+            <div class="tp-profit-wrap">
+              <strong class="tp-profit">+${money(realised, currency)}</strong>
+              <span class="tp-profit-label">${t('realisedProfit')}</span>
+            </div>
+          </div>
+          <div class="tp-row-details">
+            <div class="tp-detail">
+              <label>${t('sold')}</label>
+              <strong>${record.qty} ${record.asset}</strong>
+            </div>
+            <div class="tp-detail">
+              <label>${t('tpPrice')}</label>
+              <strong>${money(record.priceUsd * multiplier, currency)}</strong>
+            </div>
+            <div class="tp-detail">
+              <label>${t('proceeds')}</label>
+              <strong>${money(proceedsUsd * multiplier, currency)}</strong>
+            </div>
+          </div>
+        </div>`;
     }).join('');
     $('tpRows').innerHTML = rows;
   }
