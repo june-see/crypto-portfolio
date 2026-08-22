@@ -243,10 +243,23 @@
       padding-bottom: 16px;
       border-bottom: 1px solid var(--line);
     }
+    .tp-date-wrap {
+      min-width: 0;
+    }
     .tp-date {
+      display: block;
       font-size: 19px;
       line-height: 1.2;
       font-weight: 800;
+      white-space: nowrap;
+    }
+    .tp-sold-inline {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.25;
+      font-weight: 700;
       white-space: nowrap;
     }
     .tp-profit-wrap {
@@ -271,8 +284,8 @@
     }
     .tp-row-details {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 22px;
       padding-top: 16px;
     }
     .tp-detail label {
@@ -294,10 +307,11 @@
       .tp-card { padding-left: 14px; padding-right: 14px; }
       .tp-row-top { gap: 10px; }
       .tp-date { font-size: 17px; }
+      .tp-sold-inline { font-size: 13px; }
       .tp-profit { font-size: 19px; }
       .tp-profit-label, .tp-detail label { font-size: 12px; }
-      .tp-row-details { gap: 8px; }
-      .tp-detail strong { font-size: 15px; }
+      .tp-row-details { column-gap: 14px; }
+      .tp-detail strong { font-size: 16px; }
     }
 
     .tree-section {
@@ -695,17 +709,16 @@
       return `
         <div class="tp-ledger-row">
           <div class="tp-row-top">
-            <time class="tp-date" datetime="${record.date}">${dateText}</time>
+            <div class="tp-date-wrap">
+              <time class="tp-date" datetime="${record.date}">${dateText}</time>
+              <span class="tp-sold-inline">${t('sold')} ${record.qty} ${record.asset}</span>
+            </div>
             <div class="tp-profit-wrap">
               <strong class="tp-profit">+${money(realised, currency)}</strong>
               <span class="tp-profit-label">${t('realisedProfit')}</span>
             </div>
           </div>
           <div class="tp-row-details">
-            <div class="tp-detail">
-              <label>${t('sold')}</label>
-              <strong>${record.qty} ${record.asset}</strong>
-            </div>
             <div class="tp-detail">
               <label>${t('tpPrice')}</label>
               <strong>${money(record.priceUsd * multiplier, currency)}</strong>
