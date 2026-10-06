@@ -229,37 +229,43 @@
       width: 100%;
       font-variant-numeric: tabular-nums;
     }
-    .tp-ledger-row {
-      padding: 18px 2px 19px;
+    .tp-date-group {
+      padding: 18px 2px 20px;
     }
-    .tp-ledger-row + .tp-ledger-row {
+    .tp-date-group + .tp-date-group {
       border-top: 1px solid var(--line);
+    }
+    .tp-group-date {
+      display: block;
+      margin-bottom: 15px;
+      font-size: 19px;
+      line-height: 1.2;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .tp-sale-item {
+      padding: 0 0 17px;
+    }
+    .tp-sale-item + .tp-sale-item {
+      padding-top: 17px;
+      border-top: 1px solid var(--line);
+    }
+    .tp-sale-item:last-child {
+      padding-bottom: 0;
     }
     .tp-row-top {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 18px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--line);
-    }
-    .tp-date-wrap {
-      min-width: 0;
-    }
-    .tp-date {
-      display: block;
-      font-size: 19px;
-      line-height: 1.2;
-      font-weight: 800;
-      white-space: nowrap;
+      padding-bottom: 14px;
     }
     .tp-sold-inline {
       display: block;
-      margin-top: 7px;
-      color: var(--muted);
-      font-size: 14px;
+      color: var(--ink);
+      font-size: 16px;
       line-height: 1.25;
-      font-weight: 700;
+      font-weight: 800;
       white-space: nowrap;
     }
     .tp-profit-wrap {
@@ -269,7 +275,7 @@
     .tp-profit {
       display: block;
       color: var(--green);
-      font-size: 21px;
+      font-size: 20px;
       line-height: 1.15;
       font-weight: 850;
       white-space: nowrap;
@@ -286,7 +292,8 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       column-gap: 22px;
-      padding-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
     }
     .tp-detail label {
       display: block;
@@ -305,10 +312,10 @@
     }
     @media (max-width: 390px) {
       .tp-card { padding-left: 14px; padding-right: 14px; }
+      .tp-group-date { font-size: 18px; }
       .tp-row-top { gap: 10px; }
-      .tp-date { font-size: 17px; }
-      .tp-sold-inline { font-size: 13px; }
-      .tp-profit { font-size: 19px; }
+      .tp-sold-inline { font-size: 15px; }
+      .tp-profit { font-size: 18px; }
       .tp-profit-label, .tp-detail label { font-size: 12px; }
       .tp-row-details { column-gap: 14px; }
       .tp-detail strong { font-size: 16px; }
@@ -446,12 +453,12 @@
           <button class="active" data-lang="en">EN</button>
           <button data-lang="zh">中文</button>
         </div>
-        <div class="live"><span class="dot"></span><span data-i18n="live">LIVE</span></div>
+        <div class="live"><span class="dot" style="background:#8c877d;box-shadow:0 0 0 4px rgba(140,135,125,.12)"></span><span data-i18n="closed">CLOSED</span></div>
       </div>
     </header>
 
     <section class="hero">
-      <p class="eyebrow" data-i18n="totalValue">Total portfolio value</p>
+      <p class="eyebrow" data-i18n="finalProfit">Final realised profit</p>
       <h1 class="portfolio-value" id="portfolioValue">$0.00</h1>
       <div class="secondary-value" id="secondaryValue">RM 0.00</div>
       <div class="pnl-line">
@@ -465,7 +472,7 @@
         <button class="active" data-currency="usd">USD</button>
         <button data-currency="myr">MYR</button>
       </div>
-      <div class="updated" id="updatedText" data-i18n="waitingPrice">Waiting for price…</div>
+      <div class="updated" id="updatedText" data-i18n="waitingFx">Loading currency rate…</div>
     </div>
 
     <section class="cards">
@@ -475,16 +482,16 @@
             <div class="coin">ETH</div>
             <div>
               <div class="asset-name" data-i18n="ethereum">Ethereum</div>
-              <div class="holdings">1.800000 ETH</div>
+              <div class="holdings">0 ETH</div>
             </div>
           </div>
-          <div class="asset-price"><strong id="ethPrice">-</strong><span data-i18n="currentPrice">current price</span></div>
+          <div class="asset-price"><strong id="ethStatus" data-i18n="soldOut">SOLD OUT</strong><span data-i18n="closedPosition">position closed</span></div>
         </div>
         <div class="metric-grid">
-          <div class="metric"><label data-i18n="currentValue">Current value</label><strong id="ethValue">-</strong></div>
-          <div class="metric"><label data-i18n="averageEntry">Average entry</label><strong id="ethEntry">-</strong></div>
-          <div class="metric"><label data-i18n="invested">Invested</label><strong id="ethInvested">-</strong></div>
-          <div class="metric"><label data-i18n="pnl">P&L</label><strong id="ethPnl">-</strong></div>
+          <div class="metric"><label data-i18n="totalInvested">Total invested</label><strong id="ethInvested">-</strong></div>
+          <div class="metric"><label data-i18n="totalProceeds">Total proceeds</label><strong id="ethProceeds">-</strong></div>
+          <div class="metric"><label data-i18n="realisedProfit">Realised profit</label><strong id="ethPnl">-</strong></div>
+          <div class="metric"><label data-i18n="realisedReturn">Realised return</label><strong id="ethReturn">-</strong></div>
         </div>
       </article>
 
@@ -494,16 +501,16 @@
             <div class="coin">BTC</div>
             <div>
               <div class="asset-name" data-i18n="bitcoin">Bitcoin</div>
-              <div class="holdings">0.015527 BTC</div>
+              <div class="holdings">0 BTC</div>
             </div>
           </div>
-          <div class="asset-price"><strong id="btcPrice">-</strong><span data-i18n="currentPrice">current price</span></div>
+          <div class="asset-price"><strong id="btcStatus" data-i18n="soldOut">SOLD OUT</strong><span data-i18n="closedPosition">position closed</span></div>
         </div>
         <div class="metric-grid">
-          <div class="metric"><label data-i18n="currentValue">Current value</label><strong id="btcValue">-</strong></div>
-          <div class="metric"><label data-i18n="averageEntry">Average entry</label><strong id="btcEntry">-</strong></div>
-          <div class="metric"><label data-i18n="invested">Invested</label><strong id="btcInvested">-</strong></div>
-          <div class="metric"><label data-i18n="pnl">P&L</label><strong id="btcPnl">-</strong></div>
+          <div class="metric"><label data-i18n="totalInvested">Total invested</label><strong id="btcInvested">-</strong></div>
+          <div class="metric"><label data-i18n="totalProceeds">Total proceeds</label><strong id="btcProceeds">-</strong></div>
+          <div class="metric"><label data-i18n="realisedProfit">Realised profit</label><strong id="btcPnl">-</strong></div>
+          <div class="metric"><label data-i18n="realisedReturn">Realised return</label><strong id="btcReturn">-</strong></div>
         </div>
       </article>
     </section>
@@ -548,28 +555,53 @@
     </section>
   </main>
 
-  <div class="loading-toast" id="loadingToast" data-i18n="fetchingPrices">Fetching live BTC & ETH prices…</div>
-  <div class="error-toast hidden" id="errorToast" data-i18n="priceError">Could not reach CoinGecko. Your last successful price will stay on screen.</div>
+  <div class="loading-toast" id="loadingToast" data-i18n="fetchingPrices">Loading USD/MYR rate…</div>
+  <div class="error-toast hidden" id="errorToast" data-i18n="priceError">Could not refresh the USD/MYR conversion. USD figures are still available.</div>
 
 <script>
 (() => {
   const API = 'https://api.coingecko.com/api/v3';
-  const ORIGINAL_ETH = { qty: 2.1, costUsd: 4048.5, avgUsd: 4048.5 / 2.1 };
-  const TP_RECORDS = [
-    { date: '2026-08-22', asset: 'ETH', qty: 0.3, priceUsd: 2517 }
-  ];
-  const TOTAL_ETH_SOLD = TP_RECORDS.reduce((sum, record) => sum + record.qty, 0);
-  const TP_COST_USD = TOTAL_ETH_SOLD * ORIGINAL_ETH.avgUsd;
 
-  const PORTFOLIO = {
-    ethereum: { symbol: 'ETH', qty: ORIGINAL_ETH.qty - TOTAL_ETH_SOLD, costUsd: ORIGINAL_ETH.costUsd - TP_COST_USD, avgUsd: ORIGINAL_ETH.avgUsd },
-    bitcoin: { symbol: 'BTC', qty: 0.015527, costUsd: 998.665586, avgUsd: 64318 }
+  const ORIGINAL = {
+    ETH: { qty: 2.1, costUsd: 4048.5, avgUsd: 4048.5 / 2.1 },
+    BTC: { qty: 0.015527, costUsd: 0.015527 * 64318, avgUsd: 64318 }
   };
-  const TOTAL_COST_USD = PORTFOLIO.ethereum.costUsd + PORTFOLIO.bitcoin.costUsd;
+
+  // The BTC exit was reported as 0.01553 BTC. The tracker originally held
+  // 0.015527 BTC, so the accounting uses the exact tracked quantity and
+  // formats it to 5 decimals in the TP ledger.
+  const TP_RECORDS = [
+    { date: '2026-08-22', asset: 'ETH', qty: 0.3, priceUsd: 2517 },
+    { date: '2026-10-02', asset: 'ETH', qty: 1.0, priceUsd: 2717 },
+    { date: '2026-10-02', asset: 'ETH', qty: 0.8, priceUsd: 2743 },
+    { date: '2026-10-02', asset: 'BTC', qty: ORIGINAL.BTC.qty, displayQty: '0.01553', priceUsd: 86019 }
+  ];
+
+  function recordCostUsd(record) {
+    return record.qty * ORIGINAL[record.asset].avgUsd;
+  }
+  function recordProceedsUsd(record) {
+    return record.qty * record.priceUsd;
+  }
+  function recordProfitUsd(record) {
+    return recordProceedsUsd(record) - recordCostUsd(record);
+  }
+
+  const ETH_RECORDS = TP_RECORDS.filter(r => r.asset === 'ETH');
+  const BTC_RECORDS = TP_RECORDS.filter(r => r.asset === 'BTC');
+  const ETH_PROCEEDS_USD = ETH_RECORDS.reduce((sum, r) => sum + recordProceedsUsd(r), 0);
+  const BTC_PROCEEDS_USD = BTC_RECORDS.reduce((sum, r) => sum + recordProceedsUsd(r), 0);
+  const ETH_PROFIT_USD = ETH_PROCEEDS_USD - ORIGINAL.ETH.costUsd;
+  const BTC_PROFIT_USD = BTC_PROCEEDS_USD - ORIGINAL.BTC.costUsd;
+  const TOTAL_INVESTED_USD = ORIGINAL.ETH.costUsd + ORIGINAL.BTC.costUsd;
+  const TOTAL_PROCEEDS_USD = ETH_PROCEEDS_USD + BTC_PROCEEDS_USD;
+  const TOTAL_REALISED_PROFIT_USD = TOTAL_PROCEEDS_USD - TOTAL_INVESTED_USD;
+  const FINAL_RETURN_PCT = TOTAL_REALISED_PROFIT_USD / TOTAL_INVESTED_USD * 100;
 
   let currency = 'usd';
   let prices = null;
-  let pnlPct = 0;
+  let fxRate = 1;
+  let pnlPct = FINAL_RETURN_PCT;
   let simulatedPnl = null;
   let raf = null;
 
@@ -577,24 +609,24 @@
   let language = localStorage.getItem('lmf-language') || 'en';
   const I18N = {
     en: {
-      brand: "LMF's Crypto Portfolio", live: 'LIVE', totalValue: 'Total portfolio value', waitingPrice: 'Waiting for price…',
-      ethereum: 'Ethereum', bitcoin: 'Bitcoin', currentPrice: 'current price', currentValue: 'Current value',
-      averageEntry: 'Average entry', invested: 'Invested', pnl: 'P&L', tpRecord: 'TP record', realisedProfit: 'Realised profit',
-      date: 'Date', sold: 'Sold', tpPrice: 'TP price', proceeds: 'Proceeds', gardenSimulator: 'Garden simulator',
-      returnLive: 'Return garden to live P&L', portfolioGarden: 'Portfolio garden', growingPnl: 'Growing from your P&L',
-      fetchingPrices: 'Fetching live BTC & ETH prices…', priceError: 'Could not reach CoinGecko. Your last successful price will stay on screen.',
-      updated: 'Updated', livePrices: 'Live prices', weatheringRain: 'weathering the rain', matureTree: 'mature tree',
-      flower: 'flower', flowers: 'flowers', growth: 'growth', simulating: 'SIMULATING', liveState: 'LIVE'
+      brand: "LMF's Crypto Portfolio", closed: 'CLOSED', finalProfit: 'Final realised profit', waitingFx: 'Loading currency rate…',
+      ethereum: 'Ethereum', bitcoin: 'Bitcoin', soldOut: 'SOLD OUT', closedPosition: 'position closed',
+      totalInvested: 'Total invested', totalProceeds: 'Total proceeds', realisedProfit: 'Realised profit', realisedReturn: 'Realised return',
+      tpRecord: 'TP record', date: 'Date', sold: 'Sold', tpPrice: 'TP price', proceeds: 'Proceeds', gardenSimulator: 'Garden simulator',
+      returnLive: 'Return garden to final return', portfolioGarden: 'Portfolio garden', growingPnl: 'Final realised return',
+      fetchingPrices: 'Loading USD/MYR rate…', priceError: 'Could not refresh the USD/MYR conversion. USD figures are still available.',
+      updated: 'FX updated', livePrices: 'Currency rate ready', weatheringRain: 'weathering the rain', matureTree: 'mature tree',
+      flower: 'flower', flowers: 'flowers', growth: 'final return', simulating: 'SIMULATING', liveState: 'FINAL', closedOn: 'Closed Oct 2, 2026'
     },
     zh: {
-      brand: 'LMF 的加密投资组合', live: '实时', totalValue: '投资组合总值', waitingPrice: '等待价格更新…',
-      ethereum: '以太坊', bitcoin: '比特币', currentPrice: '当前价格', currentValue: '当前价值',
-      averageEntry: '平均买入价', invested: '投入成本', pnl: '盈亏', tpRecord: '止盈记录', realisedProfit: '已实现利润',
-      date: '日期', sold: '卖出', tpPrice: '止盈价', proceeds: '卖出所得', gardenSimulator: '花园模拟器',
-      returnLive: '恢复实时盈亏', portfolioGarden: '投资组合花园', growingPnl: '随盈亏成长',
-      fetchingPrices: '正在获取 BTC 与 ETH 实时价格…', priceError: '暂时无法连接 CoinGecko，将保留上一次成功获取的价格。',
-      updated: '更新于', livePrices: '实时价格', weatheringRain: '经历风雨', matureTree: '成熟树',
-      flower: '朵花', flowers: '朵花', growth: '成长', simulating: '模拟中', liveState: '实时'
+      brand: 'LMF 的加密投资组合', closed: '已清仓', finalProfit: '最终已实现利润', waitingFx: '正在加载汇率…',
+      ethereum: '以太坊', bitcoin: '比特币', soldOut: '已清仓', closedPosition: '仓位已关闭',
+      totalInvested: '总投入', totalProceeds: '总卖出所得', realisedProfit: '已实现利润', realisedReturn: '已实现回报率',
+      tpRecord: '止盈记录', date: '日期', sold: '卖出', tpPrice: '止盈价', proceeds: '卖出所得', gardenSimulator: '花园模拟器',
+      returnLive: '恢复最终回报率', portfolioGarden: '投资组合花园', growingPnl: '最终已实现回报',
+      fetchingPrices: '正在加载 USD/MYR 汇率…', priceError: '暂时无法更新 USD/MYR 汇率，美元数据仍可正常显示。',
+      updated: '汇率更新于', livePrices: '汇率已更新', weatheringRain: '经历风雨', matureTree: '成熟树',
+      flower: '朵花', flowers: '朵花', growth: '最终回报', simulating: '模拟中', liveState: '最终', closedOn: '已于 2026/10/02 清仓'
     }
   };
   const $ = (id) => document.getElementById(id);
@@ -607,11 +639,12 @@
       if (I18N[language][key] !== undefined) el.textContent = I18N[language][key];
     });
     document.querySelectorAll('[data-lang]').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === language));
-    if (prices) updateDashboard();
-    else { renderTP(1); drawTree(); }
+    renderClosedPortfolio();
+    renderTP(fxRate);
+    drawTree();
     updateSimulatorUI();
   }
-  const activeGardenPnl = () => simulatedPnl === null ? pnlPct : simulatedPnl;
+  const activeGardenPnl = () => simulatedPnl === null ? FINAL_RETURN_PCT : simulatedPnl;
   const money = (value, cur = currency, max = 2) => {
     if (!Number.isFinite(value)) return '-';
     if (cur === 'myr') return 'RM ' + value.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: max });
@@ -626,124 +659,153 @@
     if (pill) el.classList.add('pnl-percent');
   }
 
+  function convertUsd(value, targetCurrency = currency) {
+    return targetCurrency === 'myr' ? value * fxRate : value;
+  }
+
+  function formatSignedMoney(valueUsd, targetCurrency = currency) {
+    const value = convertUsd(valueUsd, targetCurrency);
+    return `${value >= 0 ? '+' : '-'}${money(Math.abs(value), targetCurrency)}`;
+  }
+
+  function renderClosedPortfolio() {
+    pnlPct = FINAL_RETURN_PCT;
+    const mainProfit = convertUsd(TOTAL_REALISED_PROFIT_USD, currency);
+    const alternate = currency === 'usd' ? 'myr' : 'usd';
+    const altProfit = convertUsd(TOTAL_REALISED_PROFIT_USD, alternate);
+    const proceeds = convertUsd(TOTAL_PROCEEDS_USD, currency);
+
+    $('portfolioValue').textContent = `${mainProfit >= 0 ? '+' : '-'}${money(Math.abs(mainProfit), currency)}`;
+    $('secondaryValue').textContent = `${altProfit >= 0 ? '+' : '-'}${money(Math.abs(altProfit), alternate)}`;
+    $('pnlAmount').textContent = `${t('totalProceeds')}: ${money(proceeds, currency)}`;
+    $('pnlPercent').textContent = pct(FINAL_RETURN_PCT);
+    setSign($('pnlAmount'), TOTAL_REALISED_PROFIT_USD);
+    setSign($('pnlPercent'), FINAL_RETURN_PCT, true);
+
+    renderClosedAsset('ETH', ORIGINAL.ETH.costUsd, ETH_PROCEEDS_USD, ETH_PROFIT_USD);
+    renderClosedAsset('BTC', ORIGINAL.BTC.costUsd, BTC_PROCEEDS_USD, BTC_PROFIT_USD);
+    renderTP(fxRate);
+    if ($('updatedText')) $('updatedText').textContent = t('closedOn');
+    if (simulatorEnabled && simulatedPnl === null) syncSimulatorToLive();
+  }
+
+  function renderClosedAsset(asset, investedUsd, proceedsUsd, profitUsd) {
+    const prefix = asset === 'ETH' ? 'eth' : 'btc';
+    const returnPct = profitUsd / investedUsd * 100;
+    $(prefix + 'Invested').textContent = money(convertUsd(investedUsd), currency);
+    $(prefix + 'Proceeds').textContent = money(convertUsd(proceedsUsd), currency);
+    $(prefix + 'Pnl').textContent = formatSignedMoney(profitUsd);
+    $(prefix + 'Return').textContent = pct(returnPct);
+    setSign($(prefix + 'Pnl'), profitUsd);
+    setSign($(prefix + 'Return'), returnPct);
+  }
+
+  function validFx(value) {
+    return Number.isFinite(value) && value > 3 && value < 6;
+  }
+
   async function fetchPrices() {
+    // Same conversion method as the earlier working version:
+    // ask CoinGecko for ETH in both USD and MYR, then derive the implied USD/MYR rate.
     try {
-      const url = `${API}/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,myr&include_last_updated_at=true`;
+      const url = `${API}/simple/price?ids=ethereum&vs_currencies=usd,myr&include_last_updated_at=true`;
       const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error('Price request failed');
-      prices = await res.json();
-      localStorage.setItem('lmf-last-prices', JSON.stringify(prices));
+      if (!res.ok) throw new Error('CoinGecko request failed');
+      const data = await res.json();
+      const rate = data?.ethereum?.myr / data?.ethereum?.usd;
+      if (!validFx(rate)) throw new Error('Invalid CoinGecko implied rate');
+
+      prices = data;
+      fxRate = rate;
+      localStorage.setItem('lmf-last-prices', JSON.stringify(data));
+      localStorage.setItem('lmf-last-fx', String(fxRate));
       $('errorToast').classList.add('hidden');
-      updateDashboard();
+      renderClosedPortfolio();
       $('loadingToast').classList.add('hidden');
     } catch (err) {
-      const cached = localStorage.getItem('lmf-last-prices');
-      if (cached && !prices) {
-        try { prices = JSON.parse(cached); updateDashboard(); } catch (_) {}
+      const cachedPrices = localStorage.getItem('lmf-last-prices');
+      const cachedFx = Number(localStorage.getItem('lmf-last-fx'));
+
+      if (cachedPrices) {
+        try {
+          const data = JSON.parse(cachedPrices);
+          const rate = data?.ethereum?.myr / data?.ethereum?.usd;
+          if (validFx(rate)) {
+            prices = data;
+            fxRate = rate;
+          } else if (validFx(cachedFx)) {
+            fxRate = cachedFx;
+          }
+        } catch (_) {
+          if (validFx(cachedFx)) fxRate = cachedFx;
+        }
+      } else if (validFx(cachedFx)) {
+        fxRate = cachedFx;
       }
+
       $('loadingToast').classList.add('hidden');
       $('errorToast').classList.remove('hidden');
       setTimeout(() => $('errorToast').classList.add('hidden'), 5000);
+      renderClosedPortfolio();
     }
-  }
-
-  function updateDashboard() {
-    if (!prices?.ethereum?.usd || !prices?.bitcoin?.usd) return;
-
-    const usdValue = PORTFOLIO.ethereum.qty * prices.ethereum.usd + PORTFOLIO.bitcoin.qty * prices.bitcoin.usd;
-    const myrValue = PORTFOLIO.ethereum.qty * prices.ethereum.myr + PORTFOLIO.bitcoin.qty * prices.bitcoin.myr;
-    const fx = myrValue / usdValue;
-    const displayValue = currency === 'usd' ? usdValue : myrValue;
-    const displayCost = currency === 'usd' ? TOTAL_COST_USD : TOTAL_COST_USD * fx;
-    const displayPnl = displayValue - displayCost;
-    pnlPct = ((usdValue - TOTAL_COST_USD) / TOTAL_COST_USD) * 100;
-
-    $('portfolioValue').textContent = money(displayValue, currency);
-    $('secondaryValue').textContent = currency === 'usd' ? money(myrValue, 'myr') : money(usdValue, 'usd');
-    $('pnlAmount').textContent = `${displayPnl >= 0 ? '+' : '-'}${money(Math.abs(displayPnl), currency)}`;
-    $('pnlPercent').textContent = pct(pnlPct);
-    setSign($('pnlAmount'), displayPnl);
-    setSign($('pnlPercent'), pnlPct, true);
-
-    renderAsset('ethereum', fx);
-    renderAsset('bitcoin', fx);
-    renderTP(fx);
-
-    const updated = Math.max(prices.ethereum.last_updated_at || 0, prices.bitcoin.last_updated_at || 0);
-    $('updatedText').textContent = updated ? `${t('updated')} ${new Date(updated * 1000).toLocaleTimeString(language === 'zh' ? 'zh-CN' : undefined, {hour:'2-digit', minute:'2-digit'})}` : t('livePrices');
-
-    storePortfolioSnapshot(usdValue, myrValue);
-    if (simulatorEnabled && simulatedPnl === null) syncSimulatorToLive();
-    drawTree();
-  }
-
-  function renderAsset(id, fx) {
-    const p = PORTFOLIO[id];
-    const currentPrice = prices[id][currency];
-    const currentValue = currentPrice * p.qty;
-    const cost = currency === 'usd' ? p.costUsd : p.costUsd * fx;
-    const entry = currency === 'usd' ? p.avgUsd : p.avgUsd * fx;
-    const assetPnl = currentValue - cost;
-    const assetPct = (assetPnl / cost) * 100;
-    const prefix = id === 'ethereum' ? 'eth' : 'btc';
-
-    $(prefix + 'Price').textContent = money(currentPrice, currency);
-    $(prefix + 'Value').textContent = money(currentValue, currency);
-    $(prefix + 'Entry').textContent = money(entry, currency);
-    $(prefix + 'Invested').textContent = money(cost, currency);
-    $(prefix + 'Pnl').textContent = `${assetPnl >= 0 ? '+' : '-'}${money(Math.abs(assetPnl), currency)} · ${pct(assetPct)}`;
-    setSign($(prefix + 'Pnl'), assetPnl);
   }
 
   function renderTP(fx) {
     const multiplier = currency === 'usd' ? 1 : fx;
-    const rows = TP_RECORDS.map(record => {
-      const soldCostUsd = record.qty * ORIGINAL_ETH.avgUsd;
-      const proceedsUsd = record.qty * record.priceUsd;
-      const realisedUsd = proceedsUsd - soldCostUsd;
-      const realised = realisedUsd * multiplier;
-      const date = new Date(`${record.date}T00:00:00`);
+    const groups = [];
+    TP_RECORDS.forEach(record => {
+      let group = groups.find(item => item.date === record.date);
+      if (!group) {
+        group = { date: record.date, records: [] };
+        groups.push(group);
+      }
+      group.records.push(record);
+    });
+
+    const html = groups.map(group => {
+      const date = new Date(`${group.date}T00:00:00`);
       const dateText = language === 'zh'
         ? date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
         : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      const sales = group.records.map(record => {
+        const proceedsUsd = recordProceedsUsd(record);
+        const realisedUsd = recordProfitUsd(record);
+        const realised = realisedUsd * multiplier;
+        const qtyText = record.displayQty || (record.asset === 'BTC' ? record.qty.toFixed(5) : String(record.qty));
+        return `
+          <div class="tp-sale-item">
+            <div class="tp-row-top">
+              <span class="tp-sold-inline">${t('sold')} ${qtyText} ${record.asset}</span>
+              <div class="tp-profit-wrap">
+                <strong class="tp-profit">${realisedUsd >= 0 ? '+' : '-'}${money(Math.abs(realised), currency)}</strong>
+                <span class="tp-profit-label">${t('realisedProfit')}</span>
+              </div>
+            </div>
+            <div class="tp-row-details">
+              <div class="tp-detail">
+                <label>${t('tpPrice')}</label>
+                <strong>${money(record.priceUsd * multiplier, currency)}</strong>
+              </div>
+              <div class="tp-detail">
+                <label>${t('proceeds')}</label>
+                <strong>${money(proceedsUsd * multiplier, currency)}</strong>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
       return `
-        <div class="tp-ledger-row">
-          <div class="tp-row-top">
-            <div class="tp-date-wrap">
-              <time class="tp-date" datetime="${record.date}">${dateText}</time>
-              <span class="tp-sold-inline">${t('sold')} ${record.qty} ${record.asset}</span>
-            </div>
-            <div class="tp-profit-wrap">
-              <strong class="tp-profit">+${money(realised, currency)}</strong>
-              <span class="tp-profit-label">${t('realisedProfit')}</span>
-            </div>
-          </div>
-          <div class="tp-row-details">
-            <div class="tp-detail">
-              <label>${t('tpPrice')}</label>
-              <strong>${money(record.priceUsd * multiplier, currency)}</strong>
-            </div>
-            <div class="tp-detail">
-              <label>${t('proceeds')}</label>
-              <strong>${money(proceedsUsd * multiplier, currency)}</strong>
-            </div>
-          </div>
+        <div class="tp-date-group">
+          <time class="tp-group-date" datetime="${group.date}">${dateText}</time>
+          ${sales}
         </div>`;
     }).join('');
-    $('tpRows').innerHTML = rows;
+
+    $('tpRows').innerHTML = html;
   }
 
-  function storePortfolioSnapshot(usd, myr) {
-    const key = 'lmf-portfolio-history';
-    const list = JSON.parse(localStorage.getItem(key) || '[]');
-    const now = Date.now();
-    const last = list[list.length - 1];
-    if (!last || now - last.t > 15 * 60 * 1000) {
-      list.push({ t: now, usd, myr });
-      const cutoff = now - 365 * 24 * 60 * 60 * 1000;
-      localStorage.setItem(key, JSON.stringify(list.filter(x => x.t >= cutoff)));
-    }
-  }
+  function storePortfolioSnapshot() {}
 
   function treeState(p) {
     if (p < 0) return { stage: 0, growth: .34, rain: true, sun: false, rainbow: false, foliage: .14, flowers: 0 };
@@ -993,8 +1055,9 @@
     btn.addEventListener('click', () => {
       currency = btn.dataset.currency;
       document.querySelectorAll('[data-currency]').forEach(b => b.classList.toggle('active', b === btn));
-      updateDashboard();
-        });
+      renderClosedPortfolio();
+      drawTree();
+    });
   });
 
   document.addEventListener('visibilitychange', () => {
